@@ -11,7 +11,7 @@ app.post('/meals', mealRoutes);
 
 app.get('/search-meals/:userId', mealRoutes)
 
-app.get('/unique-meal/:mealId', authenticateToken, mealRoutes)
+app.get('/unique-meal/:mealId', mealRoutes)
 
 app.get('/metrics/:userId', mealRoutes)
 

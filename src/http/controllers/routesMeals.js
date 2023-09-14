@@ -83,26 +83,24 @@ const router = express.Router();
   // get meal metrics
   router.get('/:userId', async (req, res) => {
     const { userId } = req.params;
-    const authenticatedUserId = req.user.id; // Certifique-se de que a autenticação esteja funcionando corretamente e o usuário seja acessível aqui.
+    const authenticatedUserId = req.user.id; 
+
+    console.log('userId:', userId);
+    console.log('authenticatedUserId:', req.user.id);
   
     if (userId !== authenticatedUserId) {
       return res.status(403).json({ message: 'Você não tem permissão para acessar essas métricas.' });
     }
   
     try {
-      const totalMeals = await prisma.meal.count({
+      const meals = await prisma.meal.findMany({
         where: {
           userId: userId,
         },
       });
   
-      const dietMeals = await prisma.meal.count({
-        where: {
-          userId: userId,
-          isInDiet: true,
-        },
-      });
-  
+      const totalMeals = meals.length;
+      const dietMeals = meals.filter((meal) => meal.isInDiet).length;
       const nonDietMeals = totalMeals - dietMeals;
   
       const bestDietSequence = await prisma.$queryRaw`
@@ -132,7 +130,7 @@ const router = express.Router();
   router.put('/:mealId', async (req, res) => {
     const { mealId } = req.params;
     const { name, description, dateTime, isInDiet } = req.body;
-    const userId = req.user.id; // Certifique-se de que a autenticação esteja funcionando corretamente e o usuário seja acessível aqui.
+    const userId = req.user.id; 
   
     try {
       const meal = await prisma.meal.findUnique({
@@ -190,11 +188,13 @@ const router = express.Router();
         where: { id: mealId },
       });
   
-      res.status(204).end();
+      res.status(200).json({ message: 'Refeição excluída com sucesso.' });
+  
     } catch (error) {
       console.error(error);
       res.status(500).json({ message: 'Ocorreu um erro ao excluir a refeição.' });
     }
   });
+  
 
 module.exports = router;
