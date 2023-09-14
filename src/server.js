@@ -1,40 +1,20 @@
-const http = require('http');
-const { appRoutes } = require('./http/routes');
-const { json } = require('micro'); 
+const express = require('express');
+const app = express();
+const userRoutes = require('./http/controllers/routesUsers');
+const mealRoutes = require('./http/controllers/routesMeals');
 
-const routes = appRoutes; 
+app.use(express.json());
 
-const server = http.createServer(async (req, res) => {
-  const { method, url } = req;
+app.use('/user', userRoutes);
+app.use('/meals', mealRoutes);
+app.use('/search-meals', mealRoutes);
+app.use('/unique-meal', mealRoutes);
+app.use('/metrics', mealRoutes);
+app.use('/update', mealRoutes);
+app.use('/delete', mealRoutes);
 
-  try {
-    const body = await json(req);
-
-    const route = routes.find(route => {
-      return route.method === method && route.path.test(url);
-    });
-
-    if (route) {
-      const routeParams = req.url.match(route.path);
-
-      const { query, ...params } = routeParams.groups;
-
-      req.params = params;
-      req.query = query ? extractQueryParams(query) : {};
-      req.body = body; 
-
-      return route.handler(req, res);
-    }
-
-    res.writeHead(404).end('Rota não encontrada');
-  } catch (error) {
-    console.error(error);
-    res.writeHead(500).end('Ocorreu um erro interno no servidor');
-  }
-});
 
 const PORT = 3333;
-
-server.listen(PORT, () => {
-  console.log("Servidor online...");
+app.listen(PORT, () => {
+  console.log('Servidor online...');
 });

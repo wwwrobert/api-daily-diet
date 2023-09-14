@@ -1,7 +1,7 @@
 const app = require('express')(); 
 const { userRoutes } = require('./controllers/routesUsers');
 const { mealRoutes } = require('./controllers/routesMeals');
-// const authenticateToken = require('./middleware/authenticate');
+const authenticateToken = require('./middleware/authenticate');
 
 // routes users
 app.post('/user', userRoutes);
@@ -9,15 +9,15 @@ app.post('/user', userRoutes);
 // routes meals
 app.post('/meals', mealRoutes);
 
-app.get('/meals/:userId', mealRoutes)
+app.get('/search-meals/:userId', mealRoutes)
 
-app.get('/meals/:mealId', mealRoutes)
+app.get('/unique-meal/:mealId', authenticateToken, mealRoutes)
 
-app.get('/user-metrics/:userId', mealRoutes)
+app.get('/metrics/:userId', mealRoutes)
 
-app.put('/meals/:mealId', mealRoutes)
+app.put('/update/:mealId', mealRoutes)
 
-app.delete('/meals/:mealId', mealRoutes)
+app.delete('/delete/:mealId', mealRoutes)
 
 module.exports = app;  
 

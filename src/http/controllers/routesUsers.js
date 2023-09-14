@@ -1,36 +1,32 @@
+const express = require('express');
 const { v4: uuidv4 } = require('uuid');
-const { buildRoutePath } = require('../../utils/build-route-path.js');
 const { PrismaClient } = require('@prisma/client');
 const prisma = new PrismaClient();
 
-const userRoutes = [
-  {
-    method: 'POST',
-    path: buildRoutePath('/user'),
-    handler: async (req, res) => {
-      const { username } = req.body;
+const router = express.Router();
 
-      if (!username) {
-        return res.status(400).json({ message: 'O nome é obrigatório.' });
-      }
+router.post('/', async (req, res) => {
+  const { username } = req.body;
 
-      const shortUuid = uuidv4().substr(0, 5);
+  if (!username) {
+    return res.status(400).json({ message: 'O nome é obrigatório.' });
+  }
 
-      try {
-        const user = await prisma.user.create({
-          data: {
-            id: shortUuid,
-            username,
-          },
-        });
+  const shortUuid = uuidv4().substr(0, 5);
 
-        res.status(201).json(user);
-      } catch (error) {
-        console.error(error);
-        res.status(500).json({ message: 'Ocorreu um erro ao criar o usuário.' });
-      }
-    },
-  },
-];
+  try {
+    const user = await prisma.user.create({
+      data: {
+        id: shortUuid,
+        username,
+      },
+    });
 
-module.exports = { userRoutes };
+    res.status(201).json(user);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: 'Ocorreu um erro ao criar o usuário.' });
+  }
+});
+
+module.exports = router;
