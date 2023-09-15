@@ -55,10 +55,9 @@ const router = express.Router();
   // get meal unique
   router.get('/:mealId', async (req, res) => {
     const { mealId } = req.params;
-    const userId = req.user.id; 
+    const authenticatedUserId = req.user.id;
   
     try {
-      console.log('mealId:', mealId);
       const meal = await prisma.meal.findUnique({
         where: {
           id: mealId,
@@ -69,7 +68,7 @@ const router = express.Router();
         return res.status(404).json({ message: 'Refeição não encontrada.' });
       }
   
-      if (meal.userId !== userId) {
+      if (meal.userId !== authenticatedUserId) {
         return res.status(403).json({ message: 'Você não tem permissão para visualizar esta refeição.' });
       }
   

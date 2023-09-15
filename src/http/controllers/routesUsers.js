@@ -1,6 +1,7 @@
 const express = require('express');
 const { v4: uuidv4 } = require('uuid');
 const { PrismaClient } = require('@prisma/client');
+const jwt = require('jsonwebtoken');
 const prisma = new PrismaClient();
 
 const router = express.Router();
@@ -9,7 +10,7 @@ router.post('/', async (req, res) => {
   const { username } = req.body;
 
   if (!username) {
-    return res.status(400).json({ message: 'O nome é obrigatório.' });
+    return res.status(400).json({ message: 'Nome obrigatório.' });
   }
 
   const shortUuid = uuidv4().substr(0, 5);
@@ -22,7 +23,15 @@ router.post('/', async (req, res) => {
       },
     });
 
-    res.status(201).json(user);
+    const secret = process.env.SECRET;
+    const token = jwt.sign(
+      {
+        id: user.id,
+      },
+      secret
+    );
+
+    res.status(201).json({ user, token }); 
   } catch (error) {
     console.error(error);
     res.status(500).json({ message: 'Ocorreu um erro ao criar o usuário.' });
